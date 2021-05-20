@@ -4,7 +4,8 @@ const db = config.get('mongoURI'); // Get value of DB connection string
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(db, {useNewUrlParser: true, useCreateIndex: true});
+        await mongoose.connect(db, {useNewUrlParser: true, useCreateIndex: true, 
+            useFindAndModify: false, useUnifiedTopology: true}); // Deprecated engine fixes
         console.log('MongoDB Connected...');
     } catch(err) {
         console.error(err.message);

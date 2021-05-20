@@ -10,7 +10,7 @@ const router = express.Router();
 
 // @route: GET api/auth
 // @description: validate token
-// @access: public
+// @access: Public
 router.get('/', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
@@ -23,7 +23,7 @@ router.get('/', auth, async (req, res) => {
 
 // @route: GET api/auth
 // @description: Authenticate user
-// @access: public
+// @access: Public
 router.post('/', [
     check('email', 'Please include a valid email').isEmail(), 
     check('password', 'Password is required').exists()], async (req, res) => {
