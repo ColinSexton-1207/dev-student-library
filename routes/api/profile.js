@@ -183,7 +183,58 @@ router.put('/experience', auth,
     }
 });
 
-//TODO: Update Experience
+// @route: POST api/profile/experience
+// @description: Create/Update user experience
+// @access: Private
+router.post('/experience', auth,
+        check('title', 'Title is required').notEmpty(),
+        check('company', 'Company is required').notEmpty(),
+        check('from', 'From Date is required').notEmpty(),
+        async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const {
+        title,
+        company,
+        location,
+        from,
+        to,
+        current,
+        description
+    } = req.body;
+
+    // Build socialmedia object
+    const profileFields = {};
+    profileFields.experience = {};
+    profileFields.user = req.user.id;
+    if(title) profileFields.experience.title = title;
+    if(company) profileFields.experience.company = company;
+    if(location) profileFields.experience.location = location;
+    if(from) profileFields.experience.from = from;
+    if(to) profileFields.experience.to = to;
+    if(current) profileFields.experience.current = current;
+    if(description) profileFields.experience.description = description;
+    
+    try {
+        let profile = await Profile.findOne({ user: req.user.id });
+        if(profile) {
+            // Update
+            profile = await Profile.findOneAndUpdate({ user: req.user.id }, { $set: profileFields }, { new: true });
+
+            return res.json(profile);
+        }
+
+        // Create
+        profile = new Profile(profileFields);
+        await profile.save();
+
+        return res.json(profile);
+    } catch(err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
 
 // @route: DELETE api/profile/experience/:exp_id
 // @description: Delete profile experience
@@ -210,7 +261,7 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
 router.put('/education', auth,
         check('school', 'School is required').notEmpty(),
         check('degree', 'Degree is required').notEmpty(),
-        check('fieldofstudy', 'Field of Study is required'),
+        check('fieldofstudy', 'Field of Study is required').notEmpty(),
         check('from', 'From Date is required').notEmpty(),
         async (req, res) => {
     const errors = validationResult(req);
@@ -248,7 +299,59 @@ router.put('/education', auth,
     }
 });
 
-//TODO: Update Education
+// @route: POST api/profile/education
+// @description: Create/Update user education
+// @access: Private
+router.post('/education', auth,
+        check('school', 'School is required').notEmpty(),
+        check('degree', 'Degree is required').notEmpty(),
+        check('fieldofstudy', 'Field of Study is required').notEmpty(),
+        check('from', 'From Date is required').notEmpty(),
+        async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const {
+        school,
+        degree,
+        fieldofstudy,
+        from,
+        to,
+        current,
+        description
+    } = req.body;
+
+    // Build socialmedia object
+    const profileFields = {};
+    profileFields.education = {};
+    profileFields.user = req.user.id;
+    if(school) profileFields.education.school = school;
+    if(degree) profileFields.education.degree = degree;
+    if(fieldofstudy) profileFields.education.fieldofstudy = fieldofstudy;
+    if(from) profileFields.education.from = from;
+    if(to) profileFields.education.to = to;
+    if(current) profileFields.education.current = current;
+    if(description) profileFields.education.description = description;
+    
+    try {
+        let profile = await Profile.findOne({ user: req.user.id });
+        if(profile) {
+            // Update
+            profile = await Profile.findOneAndUpdate({ user: req.user.id }, { $set: profileFields }, { new: true });
+
+            return res.json(profile);
+        }
+
+        // Create
+        profile = new Profile(profileFields);
+        await profile.save();
+
+        return res.json(profile);
+    } catch(err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
 
 // @route: DELETE api/profile/education/:edu_id
 // @description: Delete profile education
