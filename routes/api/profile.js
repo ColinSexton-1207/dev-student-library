@@ -149,7 +149,7 @@ router.put('/experience', auth,
         check('from', 'From Date is required').notEmpty(),
         async (req, res) => {
     const errors = validationResult(req);
-    if(!errors) return rest.status(400).json({ errors: errors.array() });
+    if(!errors.isEmpty()) return rest.status(400).json({ errors: errors.array() });
 
     const {
         title,
@@ -265,7 +265,7 @@ router.put('/education', auth,
         check('from', 'From Date is required').notEmpty(),
         async (req, res) => {
     const errors = validationResult(req);
-    if(!errors) return rest.status(400).json({ errors: errors.array() });
+    if(!errors.isEmpty()) return rest.status(400).json({ errors: errors.array() });
 
     const {
         school,
