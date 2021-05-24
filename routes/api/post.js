@@ -35,7 +35,35 @@ router.post('/', auth,
     }
 });
 
-//TODO: Edit post
+// @route: PUT api/post/edit-post/:id
+// @description: Edit a post
+// @access: Private
+router.put('/edit-post/:id/:post_id', auth,
+        check('text', 'Please enter text').notEmpty(),
+        async (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+        const post = await Post.findById(req.params.id);
+        if(!post) return res.status(404).json({ msg: 'Post not found' });
+    
+        // Check that user is deleting their own posts only
+        if(post.user.toString() !== req.user.id) return res.status(401).json({ msg: 'User not authorized '});
+
+        const editPost = {
+            text: req.body.text
+        };
+
+        const updatePost = await Post.findOneAndUpdate({ user: req.user.id }, { post_id: req.params.id }, { $set: editPost }, { new: true });
+
+        await post.save(updatePost);
+        return res.json(updatePost);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
 
 // @route: GET api/posts
 // @description: Get all posts
@@ -170,7 +198,39 @@ router.post('/comment/:id', auth,
     }
 });
 
-//TODO: Edit Comment
+// @route: PUT api/post/edit-comment/:id
+// @description: Edit a comment
+// @access: Private
+router.put('/edit-comment/:id/:comment_id', auth,
+        check('text', 'Please enter text').notEmpty(),
+        async (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+        const post = await Post.findById(req.params.id);
+        if(!post) return res.status(404).json({ msg: 'Post not found' });
+    
+        // Pull out comment from post
+        const comment = post.comments.find(comment => comment.id === req.params.comment_id);
+        if(!comment) return res.status(404).json({ msg: 'Comment does not exist' });
+
+        // Check that user is deleting their own posts only
+        if(post.user.toString() !== req.user.id) return res.status(401).json({ msg: 'User not authorized '});
+
+        const editComment = {
+            text: req.body.text
+        };
+
+        const updateComment = await Post.findOneAndUpdate({ user: req.user.id }, { comment: req.params.comment_id }, { $set: editComment }, { new: true });
+
+        await post.save(updateComment);
+        return res.json(updateComment);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
 
 // @route: DELETE api/post/comment/:id/:comment_id
 // @description: Delete a comment on a post 
